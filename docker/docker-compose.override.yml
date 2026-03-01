@@ -1,0 +1,13 @@
+
+services:
+  openclaw-gateway:
+    environment:
+      # [BR] Home Assistant api token. Gets this from .env
+      HA_TOKEN: ${HA_TOKEN}
+    volumes:
+      # Linuxbrew persisted on host; brew self-installs here on first brew skill use.
+      - ${OPENCLAW_CONFIG_DIR}/linuxbrew:/home/linuxbrew
+
+  openclaw-cli:
+    volumes:
+      - ${OPENCLAW_CONFIG_DIR}/linuxbrew:/home/linuxbrew
