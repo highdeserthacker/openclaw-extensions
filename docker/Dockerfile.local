@@ -11,6 +11,7 @@ FROM openclaw:local
 # --- System packages and build tools ---
 USER root
 
+# apt packages are defined here. Customize as needed.
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
       jq ripgrep ffmpeg python3 python3-pip mosquitto-clients \
@@ -80,6 +81,7 @@ RUN python3 -c "import whisper; whisper.load_model('tiny', download_root='/usr/s
   && ln -s /usr/share/whisper-models /home/node/.cache/whisper \
   && chown node:node /home/node/.cache
 
+  
 # --- SKILL.md patches ---
 # openai-whisper: default model tiny, strengthen description, add trigger instructions
 RUN sed -i \

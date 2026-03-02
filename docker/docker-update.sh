@@ -1,4 +1,5 @@
 #!/bin/bash
+################################################################
 # docker-update.sh — post-initial-setup Docker rebuild wrapper.
 # Builds openclaw:local (base) then overlays Dockerfile.local (custom tools/skills).
 # Requires docker-setup.sh to have been run once already for initial setup.
@@ -6,6 +7,7 @@
 # --build:  rebuild both image layers and restart gateway (no git pull).
 # --update: git pull; if docker-setup.sh changed run it; always rebuild custom layer.
 # 02/2026 Created: HighDesertHacker - https://github.com/highdeserthacker
+################################################################
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

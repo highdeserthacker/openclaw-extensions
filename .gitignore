@@ -1,11 +1,18 @@
+# This is a push-only repo. Only a subset of files mirrored to github for others to use.
 # Ignore everything by default
 *
 
+# Unignores '!'
 # Un-ignore .gitignore itself
 !.gitignore
+!README.md
 
 # --- Skills ---
+# My added skills and overrides. 
 !skills/
+# Overrides of core, clawhub, and off-the-shelf skills.
+!skills/weather/
+!skills/weather/**
 !skills/home_weatherstation/
 !skills/home_weatherstation/**
 !skills/location/
