@@ -1,36 +1,32 @@
 FROM openclaw:local
 
-# <<<BEGINPATCH>>>
-# -----------------------------------------------------------------------
+################################################################
 # Dockerfile.local — custom layer on top of openclaw:local
 # Adds all deployment-specific tools, skills, and patches.
-# Build: docker build -t openclaw:local-custom -f Dockerfile.local .
+# Build: docker build -t openclaw:local -f Dockerfile.local .
 # 02/2026 Created: HighDesertHacker - https://github.com/highdeserthacker
-# -----------------------------------------------------------------------
-
-# --- System packages and build tools ---
+################################################################
 USER root
 
+################################################################
+# System packages and build tools
+################################################################
 # apt packages are defined here. Customize as needed.
+# build-essential/procps/file: required for Linuxbrew to bootstrap itself at
+# runtime (brew compiles from source when no bottle is available).
+# golang-go from apt (Debian bookworm) may be older; upgrade if go-based
+# skills require a newer version.
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
       jq ripgrep ffmpeg python3 python3-pip mosquitto-clients \
       build-essential procps file golang-go && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 
+
+################################################################
+# Runtimes
 # Note: npm/node are already present in the base image (node:22-bookworm).
-# build-essential/procps/file: required for Linuxbrew to bootstrap itself at
-# runtime (brew compiles from source when no bottle is available).
-# golang-go from apt (Debian bookworm) may be older; upgrade if go-based
-# skills require a newer version.
-
-# --- GitHub CLI (github skill) ---
-RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
-  | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
-  && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
-  > /etc/apt/sources.list.d/github-cli.list \
-  && apt-get update && apt-get install -y gh && rm -rf /var/lib/apt/lists/*
-
+################################################################
 # --- uv (uv-based skills, e.g. nano-pdf) ---
 RUN pip3 install --break-system-packages uv
 
@@ -45,7 +41,22 @@ ENV PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:${PATH}
 ENV HOMEBREW_PREFIX=/home/linuxbrew/.linuxbrew
 ENV HOMEBREW_BREW_FILE=/home/linuxbrew/.linuxbrew/bin/brew
 
-# --- Custom binary installs (download kind) ---
+################################################################
+# Install User specified skills
+################################################################
+
+################
+# Apt Installs
+
+# GitHub CLI (github skill)
+RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
+  && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
+  > /etc/apt/sources.list.d/github-cli.list \
+  && apt-get update && apt-get install -y gh && rm -rf /var/lib/apt/lists/*
+
+################  
+# Binary downloads (curl+tar)
 
 # gog (Google Workspace skill) — repo steipete/gog not found on GitHub;
 # install manually or via Clawhub skill once the correct repo is identified.
@@ -69,6 +80,8 @@ RUN CAMSNAP_URL=$(curl -sf https://api.github.com/repos/steipete/camsnap/release
   && curl -fL "$CAMSNAP_URL" | tar -xz -C /usr/local/bin \
   && chmod +x /usr/local/bin/camsnap
 
+################  
+# Python downloads (pip)
 # --- openai-whisper (openai-whisper skill) ---
 # CPU-only torch to avoid pulling in the ~2GB CUDA build by default
 RUN pip3 install --break-system-packages torch --index-url https://download.pytorch.org/whl/cpu \
@@ -81,8 +94,10 @@ RUN python3 -c "import whisper; whisper.load_model('tiny', download_root='/usr/s
   && ln -s /usr/share/whisper-models /home/node/.cache/whisper \
   && chown node:node /home/node/.cache
 
-  
-# --- SKILL.md patches ---
+
+################################################################
+# SKILL.md patches
+################################################################
 # openai-whisper: default model tiny, strengthen description, add trigger instructions
 RUN sed -i \
       -e "s/defaults to \`turbo\` on this install/defaults to \`tiny\` on this install/" \
@@ -100,7 +115,9 @@ Use this skill automatically — without waiting to be asked — whenever:
 Audio files from messaging channels are saved to the workspace directory. Transcribe immediately and present the text in your reply.
 EOF
 
-# --- Runtime skill install persistence ---
+################################################################
+# Runtime skill install persistence
+################################################################
 # Route browser-console skill installs into bind-mounted paths so they survive
 # container restarts without extra compose volumes.
 # brew kind  → /home/linuxbrew bind mount (see docker-compose.override.yml)
@@ -110,7 +127,5 @@ ENV NPM_CONFIG_PREFIX=/home/node/.openclaw/npm
 ENV UV_TOOL_BIN_DIR=/home/node/.openclaw/uv/bin
 ENV GOBIN=/home/node/.openclaw/go/bin
 ENV PATH="/home/node/.openclaw/npm/bin:/home/node/.openclaw/uv/bin:/home/node/.openclaw/go/bin:${PATH}"
-
-# <<<ENDPATCH>>>
 
 USER node

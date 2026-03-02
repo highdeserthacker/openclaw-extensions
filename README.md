@@ -45,6 +45,10 @@ The following docker files were added:
 | `Dockerfile.local` | Custom dockerfile. |
 
 
+#### Residual Problems
+
+Some of the brew skills (e.g. summarize) are arm64 and can fail install (without a meaningful error message) depending on your environment.
+
 
 ### Skills
 The set of custom and modified skills.
@@ -62,7 +66,7 @@ my_location - serves as an example for calling the Home Assistant api to obtain 
 
 ## Environment
 
-Ubuntu
+Ubuntu,  x86_64/amd64
 
 ## License
 
