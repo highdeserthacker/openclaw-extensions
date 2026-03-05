@@ -4,7 +4,7 @@ This repo contains my extensions and mods to OpenClaw for my docker setup.
 
 ## Contents
 
-### Docker
+### Docker Fixes
 
 #### Problem Statement
 I run OpenClaw in a docker environment. The OpenClaw docker-setup.sh presented a number of limitations and problems for me. 
@@ -23,7 +23,7 @@ Dockerfile.local - custom dockerfile.
 Key features:
 - Install user defined apt packages. List is mastered here. Bypasses use of OPENCLAW_DOCKER_APT_PACKAGES.
 - Install and set up the runtime environments (npm/uv/go/brew) so that skills can install from the console at runtime and are persistent.
-- installs user defined skills.
+- installs user defined skills. Add your own here.
 
 
 docker-update.sh - This script was created to manage the image build. I use this instead of calling docker-setup directly.
@@ -34,13 +34,20 @@ Key features:
 - restarts the gateway.
 
 
+docker-compose.override.yml - overrides to compose file.
+Key features:
+- bind mount for linuxbrew so installs are persisted.
+- bind mount for gog /home/node/.config/gogcli so keyring is persisted.
+- environment variables for site-specific integrations (in my case, HomeAssistant api token HA_TOKEN).
+
+
 #### Summary Files
 
 The following docker files were added:
 
 | File | Description |
 |------|---------|
-| `docker-compose.override.yml` | Overrides to compose. Adds the linuxbrew bind mount (for persistence), and environment variables for site-specific integrations (in my case, HomeAssistant api token HA_TOKEN). |
+| `docker-compose.override.yml` | Overrides to compose. |
 | `docker-update.sh` | Script to build or update the docker image. Don't run docker-setup.sh directly. |
 | `Dockerfile.local` | Custom dockerfile. |
 

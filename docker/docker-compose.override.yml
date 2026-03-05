@@ -4,9 +4,14 @@ services:
     environment:
       # Home Assistant api token. Gets this from .env
       HA_TOKEN: ${HA_TOKEN}
+      # gog settings
+      GOG_KEYRING_PASSWORD: ${GOG_KEYRING_PASSWORD}
+      GOG_KEYRING_BACKEND: ${GOG_KEYRING_BACKEND}      
     volumes:
       # Linuxbrew persisted on host; brew self-installs here on first brew skill use.
       - ${OPENCLAW_CONFIG_DIR}/linuxbrew:/home/linuxbrew
+      # ~/.config/gogcli persisted on host. e.g. for gog keyring.
+      - ${OPENCLAW_CONFIG_DIR}/.config/gogcli:/home/node/.config/gogcli
 
   openclaw-cli:
     volumes:
