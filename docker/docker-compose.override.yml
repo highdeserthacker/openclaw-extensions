@@ -2,6 +2,9 @@
 services:
   openclaw-gateway:
     environment:
+      # Note - docker-compose does *not* use list syntax, must use map syntax.
+      # Set tz in container. Necessary for browser tool to get correct local times.
+      TZ: America/Los_Angeles
       # Home Assistant api token. Gets this from .env
       HA_TOKEN: ${HA_TOKEN}
       # gog settings

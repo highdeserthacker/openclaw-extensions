@@ -81,7 +81,16 @@ RUN CAMSNAP_URL=$(curl -sf https://api.github.com/repos/steipete/camsnap/release
   && curl -fL "$CAMSNAP_URL" | tar -xz -C /usr/local/bin \
   && chmod +x /usr/local/bin/camsnap
 
-################  
+################
+# Google Chrome (browser tool)
+# Install via direct .deb per https://docs.openclaw.ai/tools/browser-linux-troubleshooting
+RUN wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb \
+  && apt-get update \
+  && (dpkg -i google-chrome-stable_current_amd64.deb || apt-get install -fy --no-install-recommends) \
+  && rm google-chrome-stable_current_amd64.deb \
+  && rm -rf /var/lib/apt/lists/*
+
+################
 # Python downloads (pip)
 # --- openai-whisper (openai-whisper skill) ---
 # CPU-only torch to avoid pulling in the ~2GB CUDA build by default
@@ -95,26 +104,11 @@ RUN python3 -c "import whisper; whisper.load_model('tiny', download_root='/usr/s
   && ln -s /usr/share/whisper-models /home/node/.cache/whisper \
   && chown node:node /home/node/.cache
 
+# Pre-create ~/.config with node ownership so Docker bind mounts (e.g. gogcli)
+# don't create it as root, which would prevent Chrome from writing there.
+RUN mkdir -p /home/node/.config && chown node:node /home/node/.config
 
-################################################################
-# SKILL.md patches
-################################################################
-# openai-whisper: default model tiny, strengthen description, add trigger instructions
-RUN sed -i \
-      -e "s/defaults to \`turbo\` on this install/defaults to \`tiny\` on this install/" \
-      -e "s/description: Local speech-to-text with the Whisper CLI (no API key)./description: Transcribe voice messages, voice notes, and audio files to text using local Whisper CLI. Use proactively whenever the user sends any audio file or voice recording./" \
-      /app/skills/openai-whisper/SKILL.md \
-  && cat >> /app/skills/openai-whisper/SKILL.md << 'EOF'
 
-## When to use
-
-Use this skill automatically — without waiting to be asked — whenever:
-- The user sends a voice message or voice note (e.g. from Telegram)
-- The user sends any audio file (mp3, m4a, ogg, wav, flac, etc.)
-- The user asks to transcribe, convert speech to text, or "what did they say"
-
-Audio files from messaging channels are saved to the workspace directory. Transcribe immediately and present the text in your reply.
-EOF
 
 ################################################################
 # Runtime skill install persistence

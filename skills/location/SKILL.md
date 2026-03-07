@@ -30,8 +30,8 @@ Also activate this skill if you need to know if the user is home.
 
 Use this skill to know where the user is located. If state is not blank, it is a common location and you can refer to it with this name if appropriate to the conversation.
 If asked a question relating to things nearby, use this location. For example, the user may ask for a coffee shop nearby, or a gas station, or restaurant.
-If LastPositionUpdate is more than a day old, location information may not be up-to-date, confirm my location first by name, based on a map (not gps coordinates) with where you think I am.
-I may tell you to remember this location and give it a name. If so, save this in your memory. 
+If LastPositionUpdate is more than a day old, location information may not be up-to-date, confirm the user's location first by name, based on a map (not gps coordinates) with where you think the user is.
+The user may tell you to remember this location and give it a name. If so, save this in your memory. 
 If curl fails, say "Home Assistant not currently available".
 
 
